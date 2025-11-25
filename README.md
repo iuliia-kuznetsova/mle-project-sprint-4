@@ -1,3 +1,88 @@
+Directory structure
+
+recsys_project/
+│
+├── README.md
+├── requirements.txt
+├── .env
+├── .gitignore
+│
+├── data/
+│   ├── raw/                # unmodified source data
+│   ├── preprocessed/       # cleaned data
+│   ├── interim/            # temporary files (splits, intermediate data)
+│   └── external/           # external datasets (e.g., embeddings)
+│
+├── notebooks/              # Jupyter notebooks for exploration & prototyping
+│   ├── 01_EDA.ipynb
+│   ├── 02_FeatureEngineering.ipynb
+│   └── 03_Modeling.ipynb
+│
+├── src/
+│   ├── __init__.py
+│   │
+│   ├── data/               # data loading & preprocessing modules
+│   │   ├── __init__.py
+│   │   ├── load_data.py
+│   │   ├── preprocess.py
+│   │   └── split.py
+│   │
+│   ├── features/           # feature engineering & transformations
+│   │   ├── __init__.py
+│   │   ├── build_features.py
+│   │   └── encoders.py
+│   │
+│   ├── models/             # model definitions, training, inference
+│   │   ├── __init__.py
+│   │   ├── train.py
+│   │   ├── evaluate.py
+│   │   ├── predict.py
+│   │   ├── matrix_factorization.py
+│   │   ├── neural_recommender.py
+│   │   └── metrics.py
+│   │
+│   ├── utils/              # helper functions
+│   │   ├── __init__.py
+│   │   ├── logging.py      # custom logging setup
+│   │   └── config.py       # global config
+│   │
+│   └── api/
+│       ├── __init__.py
+│       ├── main.py         # FastAPI app
+│       └── schemas.py      # request/response models
+│
+├── models/                 # saved model weights
+│   ├── latest/
+│   └── experiments/
+│
+├── experiments/            # experiment tracking
+│   ├── experiment_001/
+│   ├── experiment_002/
+│   └── results.csv
+│
+├── tests/                  # unit & integration tests
+│   ├── __init__.py
+│   ├── test_data.py
+│   ├── test_models.py
+│   └── test_api.py
+│
+├── config/                 # YAML configs (hydra, training configs, parameters)
+│   ├── default.yaml
+│   ├── model.yaml
+│   └── training.yaml
+│
+├── docker/
+│   ├── Dockerfile
+│   └── docker-compose.yml
+│
+└── scripts/
+    ├── train.sh
+    ├── run_api.sh
+    └── preprocess.sh
+
+
+
+
 # Подготовка виртуальной машины
 
 ## Склонируйте репозиторий
