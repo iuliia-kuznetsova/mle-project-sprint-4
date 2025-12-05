@@ -131,6 +131,11 @@ class ALSRecommender:
         
         user_idx = self.user_encoder[user_id]
         
+        # Check if user index is within model bounds
+        if user_idx >= self.model.user_factors.shape[0]:
+            logger.warning(f'User {user_id} (idx={user_idx}) out of bounds for model')
+            return []
+        
         # Get recommendations
         track_indices, scores = self.model.recommend(
             user_idx,
@@ -318,6 +323,36 @@ def load_als_model(filepath):
 
     return recommender
 
+
+def generate_als_recommendations(model, train_matrix, user_ids, n=10):
+    '''
+    Generate ALS recommendations for a list of users.
+    
+    Args:
+        model: Trained ALSRecommender instance
+        train_matrix: User-item interaction matrix
+        user_ids: List of user IDs to generate recommendations for
+        n: Number of recommendations per user
+    
+    Returns:
+        Dict mapping user_id to list of recommended track_ids
+    '''
+    logger.info(f'Generating ALS recommendations for {len(user_ids):,} users')
+    
+    recommendations = {}
+    
+    for i, user_id in enumerate(user_ids):
+        if i % 10000 == 0 and i > 0:
+            logger.info(f'Generated {i:,} / {len(user_ids):,}')
+        
+        # Get recommendations using the model's recommend method
+        recs = model.recommend(user_id, train_matrix, n=n, filter_already_liked=True)
+        # Extract just the track_ids (recommend returns list of (track_id, score) tuples)
+        recommendations[user_id] = [track_id for track_id, _ in recs]
+    
+    logger.info(f'Generated recommendations for {len(recommendations):,} users')
+    return recommendations
+
 # ---------- Main training function ---------- #
 def train_als_model(preprocessed_dir=None):
     '''
@@ -376,9 +411,6 @@ def train_als_model(preprocessed_dir=None):
 
     return None
 
-# ---------- All exports ---------- #
-__all__ = ['ALSRecommender', 'load_als_model', 'train_als_model']
-
 # ---------- Main entry point ---------- #
 if __name__ == '__main__':
 
@@ -424,4 +456,5 @@ if __name__ == '__main__':
         print('  python -m src.collaborative_rec --user-id 12345 --n-recs 20')
 
 # ---------- All exports ---------- #
-__all__ = ['ALSRecommender', 'load_als_model', 'train_als_model']
+__all__ = ['ALSRecommender', 'load_als_model', 'train_als_model', 'generate_als_recommendations']
+

@@ -242,11 +242,116 @@ def evaluate_model(model_name: str, preprocessed_dir: str, models_dir: str,
     return results
 
 
-def compare_models(output_dir: str) -> None:
+def evaluate_recommender(
+    model_name: str,
+    recommendations: Dict[int, List[int]],
+    test_events_df: pl.DataFrame,
+    catalog_df: pl.DataFrame,
+    all_events_df: pl.DataFrame,
+    total_users: int,
+    k_values: List[int],
+    output_file: str = None
+) -> Dict:
     '''
-        Compare evaluated models.
+    Evaluate a recommender given pre-generated recommendations.
+    
+    Args:
+        model_name: Name of the model being evaluated
+        recommendations: Dict mapping user_id to list of recommended track_ids
+        test_events_df: Test events DataFrame
+        catalog_df: Track catalog DataFrame
+        all_events_df: All events DataFrame (for popularity calculations)
+        total_users: Total number of users in the dataset
+        k_values: List of K values to evaluate at
+        output_file: Optional path to save results as JSON
+    
+    Returns:
+        Dict with evaluation results
     '''
+    logger.info(f'Evaluating {model_name}')
+    
+    # Build test set
+    test_items = defaultdict(set)
+    for row in test_events_df.iter_rows(named=True):
+        test_items[row['user_id']].add(row['track_id'])
+    
+    # Create evaluator
+    evaluator = RecommendationEvaluator(catalog_df, all_events_df)
+    
+    # Compute metrics for each k
+    results = {
+        'model_name': model_name,
+        'evaluation_date': datetime.now().isoformat(),
+        'total_users': total_users,
+        'evaluated_users': len(recommendations),
+        'metrics': {}
+    }
+    
+    for k in k_values:
+        metrics = evaluator.evaluate(recommendations, test_items, k)
+        results['metrics'][f'k={k}'] = metrics
+        logger.info(f'  K={k}: P={metrics[f"precision@{k}"]:.4f} R={metrics[f"recall@{k}"]:.4f} NDCG={metrics[f"ndcg@{k}"]:.4f}')
+    
+    # Save to file if requested
+    if output_file:
+        os.makedirs(os.path.dirname(output_file), exist_ok=True)
+        with open(output_file, 'w') as f:
+            json.dump(results, f, indent=2)
+        logger.info(f'Saved results to {output_file}')
+    
+    return results
 
+
+def compare_models(result_files: List[str], output_file: str = None) -> pl.DataFrame:
+    '''
+    Compare multiple evaluated models from their result files.
+    
+    Args:
+        result_files: List of paths to evaluation result JSON files
+        output_file: Optional path to save comparison as CSV
+    
+    Returns:
+        Polars DataFrame with model comparison
+    '''
+    logger.info('Comparing models')
+    
+    rows = []
+    for path in result_files:
+        if not os.path.exists(path):
+            logger.warning(f'Result file not found: {path}')
+            continue
+        
+        with open(path) as f:
+            data = json.load(f)
+        
+        model_name = data.get('model_name', os.path.basename(path))
+        
+        for k_key, metrics in data.get('metrics', {}).items():
+            row = {'model': model_name, 'k': k_key}
+            row.update(metrics)
+            rows.append(row)
+        
+        logger.info(f'{model_name}: {data.get("metrics", {})}')
+    
+    if not rows:
+        logger.warning('No results to compare')
+        return pl.DataFrame()
+    
+    comparison_df = pl.DataFrame(rows)
+    
+    # Save to file if requested
+    if output_file:
+        os.makedirs(os.path.dirname(output_file), exist_ok=True)
+        comparison_df.write_csv(output_file)
+        logger.info(f'Saved comparison to {output_file}')
+    
+    return comparison_df
+
+
+def compare_models_legacy(output_dir: str) -> None:
+    '''
+    Compare evaluated models (legacy version for CLI usage).
+    '''
     logger.info('Comparing models')
     for name in ['popularity', 'collaborative', 'ranked']:
         path = f'{output_dir}/evaluation_{name}.json'
@@ -276,4 +381,4 @@ if __name__ == '__main__':
         evaluate_model(model, preprocessed_dir, models_dir, k_values, sample_users)
     
     if args.compare or args.model == 'all':
-        compare_models(output_dir)
+        compare_models_legacy(output_dir)

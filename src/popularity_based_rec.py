@@ -70,13 +70,26 @@ class PopularityRecommender:
         self.popular_tracks = None
         self.catalog = None
         
-    def fit(self, preprocessed_dir: str):
+    def fit(self, events_or_path):
         '''
             Compute track popularity from events based on the method provided.
+            
+            Args:
+                events_or_path: Either a Polars DataFrame/LazyFrame with events,
+                               or a string path to preprocessed directory.
         '''
 
-        logger.info('Loading events from %s', preprocessed_dir)
-        events = pl.scan_parquet(f'{preprocessed_dir}/events.parquet')
+        if isinstance(events_or_path, str):
+            logger.info('Loading events from %s', events_or_path)
+            events = pl.scan_parquet(f'{events_or_path}/events.parquet')
+        elif isinstance(events_or_path, pl.DataFrame):
+            logger.info('Using provided events DataFrame')
+            events = events_or_path.lazy()
+        elif isinstance(events_or_path, pl.LazyFrame):
+            logger.info('Using provided events LazyFrame')
+            events = events_or_path
+        else:
+            raise TypeError(f'Expected str, DataFrame, or LazyFrame, got {type(events_or_path)}')
 
         logger.info('Computing track popularity using method: %s', self.method)        
         if self.method == 'listen_count':
@@ -155,27 +168,40 @@ class PopularityRecommender:
         return None
     
     # ---------- Recommend top popular tracks for a user ---------- #
-    def recommend_to_one(self, preprocessed_dir: str, user_id: int, n: int = 10, filter_listened: bool = True) -> List[int]:
+    def recommend_to_one(self, events_or_path, user_id: int, n: int = 10, filter_listened: bool = True) -> List[int]:
         '''
             Recommend top popular tracks for a single given user_id that the user hasn't listened to.
+            
+            Args:
+                events_or_path: Either a Polars DataFrame/LazyFrame with events,
+                               or a string path to preprocessed directory.
+                user_id: User ID to generate recommendations for.
+                n: Number of recommendations to return.
+                filter_listened: Whether to filter out tracks the user has already listened to.
         '''
 
-        logger.info('Recommending top popular tracks for user %s', user_id)
         if self.popular_tracks is None:
             raise ValueError('Model not fitted.')
         
         if filter_listened:
-            logger.info('Loading events from %s', preprocessed_dir)
-            events = pl.scan_parquet(f'{preprocessed_dir}/events.parquet')
+            # Get events as LazyFrame
+            if isinstance(events_or_path, str):
+                events = pl.scan_parquet(f'{events_or_path}/events.parquet')
+            elif isinstance(events_or_path, pl.DataFrame):
+                events = events_or_path.lazy()
+            elif isinstance(events_or_path, pl.LazyFrame):
+                events = events_or_path
+            else:
+                raise TypeError(f'Expected str, DataFrame, or LazyFrame, got {type(events_or_path)}')
+            
             # Get user's listened tracks
             user_tracks = (
                 events
                     .filter(pl.col('user_id') == user_id)
                     .select(['track_id'])
+                    .collect()
             )['track_id'].to_list()
 
-            # Remove all dataframes from memory
-            del (events)
             # Collect garbage
             gc.collect()
         else:
@@ -194,6 +220,12 @@ class PopularityRecommender:
         gc.collect()
         
         return recommendations['track_id'].to_list()
+    
+    def recommend(self, user_id: int, events_or_path, n: int = 10, filter_listened: bool = True) -> List[int]:
+        '''
+            Alias for recommend_to_one with user_id as first argument.
+        '''
+        return self.recommend_to_one(events_or_path, user_id, n=n, filter_listened=filter_listened)
 
 
 def find_top_popular_tracks(preprocessed_dir: str = None) -> None:
@@ -218,6 +250,41 @@ def find_top_popular_tracks(preprocessed_dir: str = None) -> None:
     gc.collect()
 
     return None
+
+
+def generate_popularity_recommendations(preprocessed_dir: str, n: int = 100) -> List[int]:
+    '''
+    Generate popularity-based recommendations.
+    
+    Args:
+        preprocessed_dir: Path to preprocessed data directory
+        n: Number of top popular tracks to return
+        
+    Returns:
+        List of track_ids sorted by popularity
+    '''
+    logger.info(f'Generating top {n} popularity recommendations')
+    
+    results_dir = os.getenv('RESULTS_DIR', './results')
+    popularity_path = os.path.join(results_dir, 'top_popular.parquet')
+    
+    # Check if pre-computed recommendations exist
+    if os.path.exists(popularity_path):
+        logger.info(f'Loading existing popularity recommendations from {popularity_path}')
+        popular_tracks = pl.read_parquet(popularity_path)
+        return popular_tracks['track_id'].head(n).to_list()
+    
+    # Otherwise compute from scratch
+    method = os.getenv('POPULARITY_METHOD', 'listen_count')
+    recommender = PopularityRecommender(method=method)
+    recommender.fit(preprocessed_dir)
+    
+    # Get top tracks
+    top_tracks = recommender.popular_tracks.head(n)['track_id'].to_list()
+    
+    logger.info(f'Generated {len(top_tracks)} popularity recommendations')
+    return top_tracks
+
 
 # ---------- Main entry point ---------- #
 if __name__ == '__main__':
@@ -263,5 +330,5 @@ if __name__ == '__main__':
         print('  python -m src.popularity_based_rec --top-tracks --method user_count')
 
 # ---------- All exports ---------- #
-__all__ = ['PopularityRecommender', 'find_top_popular_tracks']
+__all__ = ['PopularityRecommender', 'find_top_popular_tracks', 'generate_popularity_recommendations']
 

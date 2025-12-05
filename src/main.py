@@ -14,24 +14,27 @@ from scipy.sparse import load_npz
 import logging
 from pythonjsonlogger import jsonlogger
 import traceback
-
+from dotenv import load_dotenv
 import polars as pl
 
 from src.raw_data_loading import load_env_with_logging, download_all_raw
 from src.data_preprocessing import run_preprocessing
 from src.train_test_split import run_train_test_split
 from src.popularity_based_rec import find_top_popular_tracks
-from src.collaborative_rec import train_als_model
+from src.collaborative_rec import find_als_recommendations, find_similar_tracks
 from src.similar_based_als import get_similar_tracks
+from src.rec_ranking import rank_recommendations
+from src.models_evaluation import evaluate_models
 
 # ---------- Logging setup ---------- #
 # Create logs directory if it doesn't exist
 os.makedirs('logs', exist_ok=True)
 
-# Configure root logger for console output
+# Configure root logger without automatic handler creation
 logging.basicConfig(
     level=logging.INFO,
     format='[%(asctime)s] [%(levelname)s] %(message)s',
+    handlers=[]
 )
 
 # Get logger for this module
@@ -77,16 +80,6 @@ def main():
     )
     
     parser.add_argument(
-        '--raw-dir',
-        help='Directory with raw parquet files (tracks, catalog_names, interactions)',
-        metavar='PATH'
-    )
-    parser.add_argument(
-        '--preprocessed-dir',
-        help='Output directory for preprocessed data files',
-        metavar='PATH'
-    )
-    parser.add_argument(
         '--skip-download',
         action='store_true',
         help='Skip downloading raw data if files already exist'
@@ -99,12 +92,10 @@ def main():
     logger.info('STEP 1: Loading environment variables')
     print('='*60)
     
-    if not load_env_with_logging():
-        logger.error('ERROR: Failed to load environment variables')
-        sys.exit(1)
+    load_dotenv()
 
-    raw_dir = args.raw_dir or os.getenv('RAW_DATA_DIR', './data/raw')
-    preprocessed_dir = args.preprocessed_dir or os.getenv('PREPROCESSED_DATA_DIR', './data/preprocessed')
+    raw_dir = os.getenv('RAW_DATA_DIR', './data/raw')
+    preprocessed_dir = os.getenv('PREPROCESSED_DATA_DIR', './data/preprocessed')
 
     logger.info('DONE: loading environment variables completed')
     logger.info(f'INFO: Raw data directory: {raw_dir}')
@@ -228,26 +219,46 @@ def main():
         sys.exit(1)
 
     print('\n' + '='*60)
-    logger.info('STEP 6: Training collaborative filtering model')
+    logger.info('STEP 6: Finding ALS recommendations')
     print('='*60)
     
     try:
-        train_als_model(preprocessed_dir)
+        find_als_recommendations(preprocessed_dir)
     except Exception as e:
-        logger.error(f'ERROR: Training collaborative filtering model failed: {e}')
+        logger.error(f'ERROR: Finding ALS recommendations failed: {e}')
         traceback.print_exc()
         sys.exit(1)
 
     print('\n' + '='*60)
-    logger.info('STEP 7: Loading similar tracks finder')
+    logger.info('STEP 7: Finding similarity-based recommendations')
     print('='*60)
     
     try:
-        similar_finder = get_similar_tracks()
-        similar_finder.find_similar_to_all()
-        logger.info('Similar tracks index built for all tracks')
+        find_similar_tracks(preprocessed_dir)
     except Exception as e:
-        logger.error(f'ERROR: Building similar tracks index failed: {e}')
+        logger.error(f'ERROR: Finding similarity-based recommendations failed: {e}')
+        traceback.print_exc()
+        sys.exit(1)
+
+    print('\n' + '='*60)
+    logger.info('STEP 8: Ranking recommendations')
+    print('='*60)
+    
+    try:
+        rank_recommendations()
+    except Exception as e:
+        logger.error(f'ERROR: Ranking recommendations failed: {e}')
+        traceback.print_exc()
+        sys.exit(1)
+
+    print('\n' + '='*60)
+    logger.info('STEP 9: Models evaluation')
+    print('='*60)
+    
+    try:
+        evaluate_models()
+    except Exception as e:
+        logger.error(f'ERROR: Models evaluation failed: {e}')
         traceback.print_exc()
         sys.exit(1)
 
