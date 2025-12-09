@@ -57,3 +57,25 @@
 {"timestamp": "2025-12-04 14:43:00,398", "module": "__main__", "level": "INFO", "message": "STEP 7: Loading similar tracks finder"}
 {"timestamp": "2025-12-04 15:36:19,919", "module": "__main__", "level": "ERROR", "message": "ERROR: Building similar tracks index failed: Series name must be a string"}
 {"timestamp": "2025-12-04 21:02:36,635", "module": "__main__", "level": "INFO", "message": "Music recommendation system starting", "version": "1.0", "component": "main"}
+{"timestamp": "2025-12-08 21:04:30,289", "module": "__main__", "level": "INFO", "message": "Music recommendation system starting", "version": "1.0", "component": "main"}
+{"timestamp": "2025-12-08 21:04:30,290", "module": "__main__", "level": "INFO", "message": "STEP 1: Loading environment variables"}
+{"timestamp": "2025-12-08 21:04:30,290", "module": "__main__", "level": "INFO", "message": "DONE: loading environment variables completed"}
+{"timestamp": "2025-12-08 21:04:30,290", "module": "__main__", "level": "INFO", "message": "INFO: Raw data directory: data/raw"}
+{"timestamp": "2025-12-08 21:04:30,291", "module": "__main__", "level": "INFO", "message": "INFO: Preprocessed data directory: data/preprocessed"}
+{"timestamp": "2025-12-08 21:04:30,291", "module": "__main__", "level": "INFO", "message": "STEP 2: Skipping raw data download (--skip-download flag)"}
+{"timestamp": "2025-12-08 21:04:30,291", "module": "__main__", "level": "INFO", "message": "DONE: Raw data download completed"}
+{"timestamp": "2025-12-08 21:04:30,291", "module": "__main__", "level": "INFO", "message": "INFO: All raw files present in data/raw"}
+{"timestamp": "2025-12-08 21:06:08,197", "module": "__main__", "level": "INFO", "message": "DONE: Preprocessing pipeline completed successfully"}
+{"timestamp": "2025-12-08 21:06:09,456", "module": "__main__", "level": "INFO", "message": "INFO: Items dataframe shape:          (5573129, 9)"}
+{"timestamp": "2025-12-08 21:06:09,456", "module": "__main__", "level": "INFO", "message": "INFO: Tracks catalog dataframe shape: (804763, 6)"}
+{"timestamp": "2025-12-08 21:06:09,456", "module": "__main__", "level": "INFO", "message": "INFO: Events dataframe shape:         (161854298, 4)"}
+{"timestamp": "2025-12-08 21:06:09,456", "module": "__main__", "level": "INFO", "message": "STEP 4: Splitting data into train/test sets"}
+{"timestamp": "2025-12-08 21:08:40,693", "module": "__main__", "level": "INFO", "message": "INFO: Train events dataframe shape: (130156956, 4)"}
+{"timestamp": "2025-12-08 21:08:40,693", "module": "__main__", "level": "INFO", "message": "INFO: Test events dataframe shape: (31697342, 4)"}
+{"timestamp": "2025-12-08 21:08:40,693", "module": "__main__", "level": "INFO", "message": "INFO: Train matrix shape: (1371770, 804713)"}
+{"timestamp": "2025-12-08 21:08:40,694", "module": "__main__", "level": "INFO", "message": "INFO: Test matrix shape: (1371770, 804713)"}
+{"timestamp": "2025-12-08 21:08:40,694", "module": "__main__", "level": "INFO", "message": "STEP 5: Finding popularity-based recommendations"}
+{"timestamp": "2025-12-08 21:08:46,357", "module": "__main__", "level": "INFO", "message": "STEP 6: Finding ALS recommendations"}
+{"timestamp": "2025-12-08 22:00:47,800", "module": "__main__", "level": "INFO", "message": "STEP 7: Finding similarity-based recommendations"}
+{"timestamp": "2025-12-08 22:51:40,363", "module": "__main__", "level": "INFO", "message": "STEP 8: Ranking recommendations"}
+{"timestamp": "2025-12-08 22:52:02,380", "module": "__main__", "level": "INFO", "message": "STEP 9: Evaluating models"}

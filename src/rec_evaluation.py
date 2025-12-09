@@ -230,11 +230,11 @@ def generate_als_recommendations(
     n: int = 10,
 ) -> Dict[int, List[int]]:
     '''
-        Generate ALS-based recommendations.
+        Generate ALS-based recommendations using batch processing for speed.
         
         1. Load the ALS model
-        2. Get the test users
-        3. Generate recommendations for each test user
+        2. Get the test users and filter to valid ones
+        3. Use batch recommend for all users at once (much faster than one-by-one)
         4. Return the recommendations
     '''
     logger.info(f'Generating ALS recommendations from {model_path}')
@@ -246,17 +246,47 @@ def generate_als_recommendations(
     test_users = test_events['user_id'].unique().to_list()
     logger.info(f'Generating for {len(test_users):,} test users')
     
-    als_based_rec = {}
+    # Filter to users that exist in training data and are within model bounds
+    n_model_users = als_model.model.user_factors.shape[0]
+    valid_users = []
+    valid_indices = []
     
-    for i, user_id in enumerate(test_users):
-        if i % 10000 == 0 and i > 0:
-            logger.info(f'  Generated {i:,} / {len(test_users):,}')    
-        
-        # Generate recommendations for the user
-        recs = als_model.recommend(user_id, train_matrix, n=n, filter_already_liked=True)
-        
-        # Extract the track_ids
-        als_based_rec[user_id] = [track_id for track_id, _ in recs]
+    for user_id in test_users:
+        if user_id in als_model.user_encoder:
+            user_idx = als_model.user_encoder[user_id]
+            if user_idx < n_model_users:
+                valid_users.append(user_id)
+                valid_indices.append(user_idx)
+    
+    logger.info(f'Valid users for batch recommendation: {len(valid_users):,}')
+    
+    if not valid_users:
+        logger.warning('No valid users found for ALS recommendations')
+        return {}
+    
+    # Convert to numpy array for batch processing
+    valid_indices = np.array(valid_indices)
+    
+    # Use batch recommend for much faster processing (all users at once)
+    logger.info('Running batch recommendation...')
+    track_indices_batch, scores_batch = als_model.model.recommend(
+        valid_indices,
+        train_matrix[valid_indices],
+        N=n,
+        filter_already_liked_items=True
+    )
+    logger.info('Batch recommendation complete')
+    
+    # Build recommendations dict
+    als_based_rec = {}
+    for i, user_id in enumerate(valid_users):
+        # Decode track indices to track_ids
+        track_ids = [
+            als_model.track_decoder[int(idx)]
+            for idx in track_indices_batch[i]
+            if int(idx) in als_model.track_decoder
+        ]
+        als_based_rec[user_id] = track_ids
     
     logger.info(f'Generated {len(als_based_rec):,} recommendation lists')
     return als_based_rec

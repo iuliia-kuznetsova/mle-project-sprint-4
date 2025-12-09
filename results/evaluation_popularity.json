@@ -1,0 +1,15 @@
+{
+  "model_name": "popularity",
+  "evaluation_date": "2025-12-09T00:07:20.273779",
+  "total_users": 1371770,
+  "evaluated_users": 1050707,
+  "metrics": {
+    "k=5": {
+      "precision@k": 0.015634805897362446,
+      "recall@k": 0.0035138419627950847,
+      "ndcg@k": 0.014680163883980664,
+      "novelty@k": 0.21226236937617843,
+      "diversity@k": 1.0
+    }
+  }
+}

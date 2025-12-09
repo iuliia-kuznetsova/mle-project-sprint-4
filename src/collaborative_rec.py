@@ -111,8 +111,8 @@ class ALSRecommender:
         train_confidence = train_matrix.copy()
         train_confidence.data = 1 + self.alpha * train_confidence.data
         
-        # Fit model (implicit expects items × users, so transpose)
-        self.model.fit(train_confidence.T, show_progress=True)
+        # Fit model (implicit expects user × item matrix: rows=users, columns=items)
+        self.model.fit(train_confidence, show_progress=True)
         self.is_fitted = True
         
         logger.info('Model training complete')

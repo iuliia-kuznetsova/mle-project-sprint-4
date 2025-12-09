@@ -1,0 +1,15 @@
+{
+  "model_name": "ranked",
+  "evaluation_date": "2025-12-09T00:39:28.025196",
+  "total_users": 1371770,
+  "evaluated_users": 1538,
+  "metrics": {
+    "k=5": {
+      "precision@k": 0.07854356306892067,
+      "recall@k": 0.021598162446462843,
+      "ndcg@k": 0.08251336195017654,
+      "novelty@k": 0.9589270544028221,
+      "diversity@k": 1.0
+    }
+  }
+}
