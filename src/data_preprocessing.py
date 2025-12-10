@@ -388,7 +388,7 @@ def build_items_df(raw_dir: str, preprocessed_dir: str):
 
     # Save items dataframe
     items.sink_parquet(f'{preprocessed_dir}/items.parquet')
-    logger.info('Succesfully done with items.parquet')
+    logger.info('DONE: items.parquet created successfully')
 
     # Remove all dataframes from memory
     del (tracks, catalog, 
@@ -435,7 +435,7 @@ def build_tracks_catalog(preprocessed_dir: str):
 
     # Save tracks catalog
     tracks_catalog.sink_parquet(f'{preprocessed_dir}/tracks_catalog_clean.parquet')
-    logger.info('Succesfully done with tracks_catalog_clean.parquet')
+    logger.info('DONE: tracks_catalog_clean.parquet created successfully')
 
     # Remove all dataframes from memory
     del (tracks_catalog)
@@ -493,7 +493,7 @@ def build_events_df(raw_dir: str, preprocessed_dir: str):
 
     # Save events dataframe
     events.sink_parquet(f'{preprocessed_dir}/events.parquet')
-    logger.info('Succesfully done with events.parquet')
+    logger.info('DONE: events.parquet created successfully')
 
     # Remove all dataframes from memory
     del (events)
@@ -652,7 +652,7 @@ def run_preprocessing(raw_dir: str=None, preprocessed_dir: str=None):
     upload_data_to_s3(f'{preprocessed_dir}/items.parquet', 'items.parquet')
     upload_data_to_s3(f'{preprocessed_dir}/events.parquet', 'events.parquet')
     
-    logger.info('Data preprocessing completed successfully')
+    logger.info('DONE: Data preprocessing completed successfully')
     
     return None
 
@@ -712,7 +712,7 @@ if __name__ == '__main__':
         logger.info('Running full preprocessing pipeline')
         run_preprocessing(raw_dir, preprocessed_dir)
 
-    logger.info('Data preprocessing completed successfully')
+    logger.info('DONE: Data preprocessing completed successfully')
 
 # ---------- All exports ---------- #
 __all__ = ['run_preprocessing']

@@ -311,7 +311,7 @@ class ALSRecommender:
         
         if batch_dfs:
             als_df = pl.concat(batch_dfs)
-            logger.info(f'Generated {als_df.height:,} total recommendations')
+            logger.info('DONE: ALS recommendations generated successfully')
             
             # Save final results
             als_df.write_parquet(output_path)
@@ -355,7 +355,7 @@ class ALSRecommender:
         if models_dir is None:
             models_dir = os.getenv('MODELS_DIR', './models')
         als_model_path = os.path.join(models_dir, 'als_model.pkl')
-        logger.info(f'Saving ALS model to {als_model_path}')
+        logger.info(f'ALS model path: {als_model_path}')
 
         # Save model to file
         with open(als_model_path, 'wb') as f:
@@ -371,7 +371,7 @@ class ALSRecommender:
                 'alpha': self.alpha,
                 'num_threads': self.num_threads,
             }, f)
-        logger.info(f'Model saved to {als_model_path}')
+        logger.info('DONE: ALS model saved successfully')
 
         return None
 

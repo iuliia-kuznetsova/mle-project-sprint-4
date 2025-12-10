@@ -35,7 +35,7 @@ def setup_logging(name: str):
         logger.addHandler(terminal_handler)
 
         # JSON file output
-        log_file = f'logs/{name}.json'
+        log_file = f'logs/logs_{name}.json'
         json_handler = logging.FileHandler(log_file, mode='a')
         json_handler.setLevel(logging.INFO)
 
@@ -47,6 +47,6 @@ def setup_logging(name: str):
         logger.addHandler(json_handler)
 
         # Initial logging
-        logger.info(f'Logging to {name}.json setup completed')
+        logger.info(f'Logging to logs_{name}.json setup completed')
 
     return logger

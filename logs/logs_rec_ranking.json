@@ -1,0 +1,17 @@
+{"timestamp": "2025-12-10 13:20:12,263", "module": "rec_ranking", "level": "INFO", "message": "Logging to logs_rec_ranking.json setup completed"}
+{"timestamp": "2025-12-10 14:01:55,551", "module": "rec_ranking", "level": "INFO", "message": "Logging to logs_rec_ranking.json setup completed"}
+{"timestamp": "2025-12-10 14:29:08,039", "module": "rec_ranking", "level": "INFO", "message": "Generating ranked recommendations"}
+{"timestamp": "2025-12-10 14:29:08,039", "module": "rec_ranking", "level": "INFO", "message": "Loading CatBoost model from ./models/catboost_classifier.cbm"}
+{"timestamp": "2025-12-10 14:29:08,088", "module": "rec_ranking", "level": "INFO", "message": "Using provided ALS candidates: 7,223,180 rows for 722,318 users"}
+{"timestamp": "2025-12-10 14:29:08,106", "module": "rec_ranking", "level": "INFO", "message": "Using provided popularity candidates: 7,223,180 rows for 722,318 users"}
+{"timestamp": "2025-12-10 14:29:09,968", "module": "rec_ranking", "level": "INFO", "message": "Merged candidates: 13,924,709 rows for 722,318 users"}
+{"timestamp": "2025-12-10 14:29:12,030", "module": "rec_ranking", "level": "INFO", "message": "Computing track custom features"}
+{"timestamp": "2025-12-10 14:29:12,030", "module": "rec_ranking", "level": "INFO", "message": "Computing genre popularity"}
+{"timestamp": "2025-12-10 14:29:20,664", "module": "rec_ranking", "level": "INFO", "message": "Genre popularity computed for 133 genres"}
+{"timestamp": "2025-12-10 14:29:20,665", "module": "rec_ranking", "level": "INFO", "message": "Computing artist popularity"}
+{"timestamp": "2025-12-10 14:29:29,587", "module": "rec_ranking", "level": "INFO", "message": "Artist popularity computed for 115,336 artists"}
+{"timestamp": "2025-12-10 14:29:29,587", "module": "rec_ranking", "level": "INFO", "message": "Computing track group size"}
+{"timestamp": "2025-12-10 14:29:29,643", "module": "rec_ranking", "level": "INFO", "message": "Track group size computed for 803,264 track groups"}
+{"timestamp": "2025-12-10 14:29:30,683", "module": "rec_ranking", "level": "INFO", "message": "DONE: Computed track custom features for 804,694 tracks"}
+{"timestamp": "2025-12-10 14:29:32,979", "module": "rec_ranking", "level": "INFO", "message": "Predicting scores"}
+{"timestamp": "2025-12-10 14:35:15,509", "module": "rec_ranking", "level": "INFO", "message": "Generated recommendations for 722,318 users"}

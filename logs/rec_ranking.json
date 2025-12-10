@@ -53,3 +53,4 @@
 {"timestamp": "2025-12-10 00:38:06,410", "module": "rec_ranking", "level": "INFO", "message": "Generating ranked recommendations"}
 {"timestamp": "2025-12-10 00:38:06,410", "module": "rec_ranking", "level": "INFO", "message": "Loading existing recommendations from ./results/recommendations.parquet"}
 {"timestamp": "2025-12-10 00:38:06,956", "module": "rec_ranking", "level": "INFO", "message": "Loaded recommendations for 1,693 users"}
+{"timestamp": "2025-12-10 11:28:43,207", "module": "rec_ranking", "level": "INFO", "message": "Logging to rec_ranking.json setup completed"}

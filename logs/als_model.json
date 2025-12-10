@@ -78,3 +78,8 @@
 {"timestamp": "2025-12-09 23:36:33,395", "module": "als_model", "level": "INFO", "message": "Model loaded from ./models/als_model.pkl"}
 {"timestamp": "2025-12-10 00:15:17,676", "module": "als_model", "level": "INFO", "message": "Loading ALS model from ./models/als_model.pkl"}
 {"timestamp": "2025-12-10 00:15:18,183", "module": "als_model", "level": "INFO", "message": "Model loaded from ./models/als_model.pkl"}
+{"timestamp": "2025-12-10 11:28:40,183", "module": "als_model", "level": "INFO", "message": "Logging to als_model.json setup completed"}
+{"timestamp": "2025-12-10 11:35:55,289", "module": "als_model", "level": "INFO", "message": "Loading ALS model from ./models/als_model.pkl"}
+{"timestamp": "2025-12-10 11:36:04,131", "module": "als_model", "level": "INFO", "message": "Model loaded from ./models/als_model.pkl"}
+{"timestamp": "2025-12-10 11:58:22,240", "module": "als_model", "level": "INFO", "message": "Loading ALS model from ./models/als_model.pkl"}
+{"timestamp": "2025-12-10 11:58:22,754", "module": "als_model", "level": "INFO", "message": "Model loaded from ./models/als_model.pkl"}

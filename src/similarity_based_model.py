@@ -282,10 +282,18 @@ def similarity_based_recommendations() -> None:
 
     logger.info('Starting similarity-based model training and recommendations')
 
+    logger.info('Loading ALS model')
     als_model = load_als_model()
+    logger.info('DONE: Pretrained ALS model loaded successfully')
+
+    logger.info('Fitting similarity-based model')
     finder = ALSSimilarTracks()
     finder.fit(als_model)
+    logger.info('DONE: Similarity-based model fitted successfully')
+
+    logger.info('Generating similarity recommendations')
     finder.generate_similarity_recommendations()
+    logger.info('DONE: Similarity recommendations generated successfully')
 
     logger.info('DONE: Similarity-based model training and recommendations completed successfully')
 

@@ -255,7 +255,7 @@ def compute_track_features(catalog: pl.DataFrame, events: pl.DataFrame) -> pl.Da
     del genre_listens, artist_listens, group_size
     gc.collect()
 
-    logger.info(f'Computed track custom features for {track_features.height:,} tracks')
+    logger.info(f'DONE: Computed track custom features for {track_features.height:,} tracks')
 
     # Return custom track features
     return track_features
@@ -291,7 +291,7 @@ def load_popular_candidates(results_dir: str, user_ids: List[int]) -> pl.DataFra
     del popular
     gc.collect()
 
-    logger.info(f'Generated {popular_candidates.height:,} popularity candidates for {len(user_ids):,} users')
+    logger.info(f'DONE: Generated {popular_candidates.height:,} popularity candidates for {len(user_ids):,} users')
     # Return popularity-based candidates
     return popular_candidates
 
@@ -315,7 +315,7 @@ def load_als_candidates(results_dir: str) -> pl.DataFrame:
     # Free up memory
     gc.collect()
 
-    logger.info(f'Loaded {als_candidates.height:,} ALS candidates for {als_candidates["user_id"].n_unique():,} users')
+    logger.info(f'DONE: Loaded {als_candidates.height:,} ALS candidates for {als_candidates["user_id"].n_unique():,} users')
     # Return ALS candidates 
     return als_candidates
 
@@ -354,7 +354,7 @@ def load_similar_candidates(
     # Free up memory
     gc.collect()
 
-    logger.info(f'Generated {similar_candidates.height:,} candidates for {similar_candidates["user_id"].n_unique():,} users')
+    logger.info(f'DONE: Generated {similar_candidates.height:,} candidates for {similar_candidates["user_id"].n_unique():,} users')
     # Return similar_based candidates
     return similar_candidates
 
@@ -557,7 +557,7 @@ def train_classifier(
     for name, imp in sorted(zip(features, model.feature_importances_), key=lambda x: -x[1]):
         logger.info(f'{name}: {imp:.2f}')
     
-    logger.info('CatBoostClassifier trained')
+    logger.info('DONE: CatBoostClassifier trained successfully')
     return model
 
 def predict_and_rank(
@@ -589,7 +589,7 @@ def predict_and_rank(
             .with_columns(pl.col('track_id').cum_count().over('user_id').alias('rank'))
     )
 
-    logger.info(f'Ranked {ranked.height:,} candidates for {ranked["user_id"].n_unique():,} users')
+    logger.info(f'DONE: Ranked {ranked.height:,} candidates for {ranked["user_id"].n_unique():,} users')
     return ranked
 
 def top_k_per_user(ranked: pl.DataFrame, k: int) -> pl.DataFrame:
@@ -608,7 +608,7 @@ def top_k_per_user(ranked: pl.DataFrame, k: int) -> pl.DataFrame:
     # Filter top-K recommendations per user
     top_k = ranked.filter(pl.col('rank') <= k)
 
-    logger.info(f'Top-{k}: {top_k.height:,} recommendations for {top_k["user_id"].n_unique():,} users')
+    logger.info(f'DONE: Top-{k}: {top_k.height:,} recommendations for {top_k["user_id"].n_unique():,} users')
     return top_k
 
 # ---------- Run ranking pipeline ---------- #
@@ -788,36 +788,28 @@ def generate_ranked_recommendations(
     results_dir: str,
     models_dir: str, 
     n: int = 10,
-    sample_users: int = None
+    sample_users: int = None,
+    test_user_ids: List[int] = None,
+    als_candidates: pl.DataFrame = None,
+    popularity_candidates: pl.DataFrame = None
 ) -> dict:
     '''
     Generate ranked recommendations using pre-trained CatBoost model.
     
     Args:
         preprocessed_dir: Path to preprocessed data directory
+        results_dir: Path to results directory
         models_dir: Path to models directory
         n: Number of recommendations per user
         sample_users: Optional number of users to sample
+        test_user_ids: Optional list of test user IDs to generate recommendations for
+        als_candidates: Pre-generated ALS candidates dataframe with columns [user_id, track_id, als_score]
+        popularity_candidates: Pre-generated popularity candidates dataframe with columns [user_id, track_id, popularity_score]
         
     Returns:
         Dictionary mapping user_id to list of track_ids
     '''
     logger.info('Generating ranked recommendations')
-       
-    # Check if recommendations already exist
-    recs_path = os.path.join(results_dir, 'recommendations.parquet')
-    if os.path.exists(recs_path):
-        logger.info(f'Loading existing recommendations from {recs_path}')
-        recs_df = pl.read_parquet(recs_path)
-        
-        # Convert to dictionary format
-        recs = {}
-        for user_id in recs_df['user_id'].unique().to_list():
-            user_recs = recs_df.filter(pl.col('user_id') == user_id).sort('rank')['track_id'].to_list()[:n]
-            recs[user_id] = user_recs
-        
-        logger.info(f'Loaded recommendations for {len(recs):,} users')
-        return recs
     
     # Load model
     model_path = os.path.join(models_dir, 'catboost_classifier.cbm')
@@ -830,13 +822,29 @@ def generate_ranked_recommendations(
     model = CatBoostClassifier()
     model.load_model(model_path)
     
-    # Load ALS candidates
-    als_path = os.path.join(results_dir, 'personal_als.parquet')
-    if not os.path.exists(als_path):
-        logger.error(f'ALS candidates not found at {als_path}')
+    # Validate that candidates are provided for evaluation
+    if als_candidates is None or popularity_candidates is None:
+        logger.error('ALS and popularity candidates must be provided for evaluation')
         return {}
     
-    candidates = pl.read_parquet(als_path)
+    logger.info(f'Using provided ALS candidates: {als_candidates.height:,} rows for {als_candidates["user_id"].n_unique():,} users')
+    logger.info(f'Using provided popularity candidates: {popularity_candidates.height:,} rows for {popularity_candidates["user_id"].n_unique():,} users')
+    
+    # Merge ALS and popularity candidates
+    candidates = (
+        als_candidates
+        .join(popularity_candidates, on=['user_id', 'track_id'], how='full', coalesce=True)
+        .with_columns([
+            pl.col('als_score').fill_null(0.0),
+            pl.col('popularity_score').fill_null(0.0)
+        ])
+    )
+    
+    logger.info(f'Merged candidates: {candidates.height:,} rows for {candidates["user_id"].n_unique():,} users')
+    
+    # Free input candidates
+    del als_candidates, popularity_candidates
+    gc.collect()
     
     # Sample users if requested
     if sample_users:
@@ -868,14 +876,8 @@ def generate_ranked_recommendations(
     del track_features
     gc.collect()
     
-    # Rename score column if needed
-    if 'score' in candidates.columns and 'als_score' not in candidates.columns:
-        candidates = candidates.rename({'score': 'als_score'})
-    
-    # Add missing feature columns with defaults
-    for col in ['similar_score', 'popularity_score']:
-        if col not in candidates.columns:
-            candidates = candidates.with_columns(pl.lit(0.0).alias(col))
+    # Add similar_score as 0.0 (not used in evaluation)
+    candidates = candidates.with_columns(pl.lit(0.0).alias('similar_score'))
     
     # Get features used by model
     features = model.feature_names_

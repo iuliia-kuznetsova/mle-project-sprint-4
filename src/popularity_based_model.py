@@ -183,6 +183,8 @@ class PopularityRecommender:
             self.top_tracks = popularity_track_scores.head(n)
             logger.info(f'No metadata added, {self.top_tracks.height:,} tracks returned')
 
+        logger.info('DONE: Top tracks added successfully')
+
         # Save locally
         top_popular_path = os.path.join(results_dir, 'top_popular.parquet')
         self.top_tracks.write_parquet(top_popular_path)

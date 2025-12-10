@@ -1,14 +1,14 @@
 {
   "model_name": "ranked",
-  "evaluation_date": "2025-12-10T00:38:21.486192",
+  "evaluation_date": "2025-12-10T14:35:32.115292",
   "total_users": 1371773,
-  "evaluated_users": 1693,
+  "evaluated_users": 722318,
   "metrics": {
     "k=5": {
-      "precision@k": 0.05138806851742469,
-      "recall@k": 0.03758141367657036,
-      "ndcg@k": 0.06618538257860884,
-      "novelty@k": 2.2677722945296646,
+      "precision@k": 0.01654146788533582,
+      "recall@k": 0.013560115957396014,
+      "ndcg@k": 0.020391428796567065,
+      "novelty@k": 1.2659468504066682,
       "diversity@k": 1.0
     }
   }
