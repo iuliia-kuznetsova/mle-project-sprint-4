@@ -11,11 +11,11 @@
     5. Predict and extract top-K recommendations
 
     Usage examples:
-    python3 -m src.rec_ranking # run full pipeline
-    python3 -m src.rec_ranking --sample_users 10000 # number of users to sample (default: None)
-    python3 -m src.rec_ranking --top_k 10 # number of recommendations per user (default: 10)
-    python3 -m src.rec_ranking --iterations 100 # number of iterations for CatBoost (default: 100)
-    python3 -m src.rec_ranking --negatives_multiplier 4 # number of negative samples per user (default: 4)
+    python3 -m src.recommendations.rec_ranking # run full pipeline
+    python3 -m src.recommendations.rec_ranking --sample_users 10000 # number of users to sample (default: None)
+    python3 -m src.recommendations.rec_ranking --top_k 10 # number of recommendations per user (default: 10)
+    python3 -m src.recommendations.rec_ranking --iterations 100 # number of iterations for CatBoost (default: 100)
+    python3 -m src.recommendations.rec_ranking --negatives_multiplier 4 # number of negative samples per user (default: 4)
 '''
 
 # ---------- Imports ---------- #
@@ -31,11 +31,11 @@ import polars as pl
 from dotenv import load_dotenv
 from catboost import CatBoostClassifier, Pool
 
-from src.s3_loading import upload_recommendations_to_s3
-from src.logging_set_up import setup_logging
+from src.recommendations.s3_loading import upload_recommendations_to_s3
+from src.logging_setup import setup_logging
 
 # ---------- Load environment variables ---------- #
-config_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config')
+config_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'config')
 load_dotenv(os.path.join(config_dir, '.env'))
 
 # ---------- Logging setup ---------- #
@@ -750,7 +750,7 @@ def generate_ranked_recommendations(
     model_path = os.path.join(models_dir, 'catboost_classifier.cbm')
     if not os.path.exists(model_path):
         logger.error(f'CatBoost model not found at {model_path}')
-        logger.info('Please run the ranking pipeline first: python -m src.rec_ranking')
+        logger.info('Please run the ranking pipeline first: python -m src.recommendations.rec_ranking')
         return {}
     
     logger.info(f'Loading CatBoost model from {model_path}')
@@ -819,7 +819,7 @@ def generate_ranked_recommendations(
     missing_features = [f for f in features if f not in available_features]
     if missing_features:
         logger.warning(f'Model expects features not in candidates: {missing_features}. Adding as 0.0')
-        logger.warning('Consider re-training the model with: python -m src.rec_ranking')
+        logger.warning('Consider re-training the model with: python -m src.recommendations.rec_ranking')
         for feat in missing_features:
             candidates = candidates.with_columns(pl.lit(0.0).alias(feat))
     #

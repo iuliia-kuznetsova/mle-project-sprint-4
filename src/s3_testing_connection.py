@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from botocore.exceptions import ClientError
 
 # Load .env from config directory (same as other scripts in the project)
-config_dir = os.path.join(os.path.dirname(__file__), '..', 'config')
+config_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'config')
 load_dotenv(os.path.join(config_dir, '.env'))
 
 class Config:

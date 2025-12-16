@@ -4,7 +4,7 @@
     This module provides functionality to load raw data from the environment variables.
 
     Usage examples:
-    python -m src.raw_data_loading # load raw data from the environment variables
+    python -m src.recommendations.raw_data_loading # load raw data from the environment variables
 '''
 
 # ---------- Imports ---------- #
@@ -15,7 +15,7 @@ import requests
 
 from dotenv import load_dotenv
 
-from src.logging_set_up import setup_logging
+from src.logging_setup import setup_logging
 
 # ---------- Logging setup ---------- #
 logger = setup_logging('raw_data_loading')
@@ -32,7 +32,7 @@ def load_env_with_logging():
         - True if the environment variables were loaded successfully, False otherwise
     '''
     # Load from config/.env (relative to project root)
-    config_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config')
+    config_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'config')
     env_path = os.path.join(config_dir, '.env')
     required_vars = [
         'RAW_DATA_DIR',

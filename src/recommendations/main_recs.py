@@ -2,8 +2,8 @@
     CLI entry point for music recommendation system.
 
     Usage examples:
-        python3 -m src.main # run full pipeline
-        python3 -m src.main --skip-download  # skip raw data download if already present
+        python3 -m src.recommendations.main_recs # run full pipeline
+        python3 -m src.recommendations.main_recs --skip-download  # skip raw data download if already present
 '''
 
 # ---------- Imports ---------- #
@@ -18,18 +18,18 @@ import traceback
 from dotenv import load_dotenv
 import polars as pl
 
-from src.logging_set_up import setup_logging
-from src.raw_data_loading import load_env_with_logging, download_all_raw
-from src.data_preprocessing import run_preprocessing
-from src.train_test_split import run_train_test_split
-from src.popularity_based_model import popularity_based_recommendations
-from src.als_model import als_recommendations
-from src.similarity_based_model import similarity_based_recommendations
-from src.rec_ranking import run_ranking_pipeline
-from src.rec_evaluation import evaluate_model
+from src.logging_setup import setup_logging
+from src.recommendations.raw_data_loading import load_env_with_logging, download_all_raw
+from src.recommendations.data_preprocessing import run_preprocessing
+from src.recommendations.train_test_split import run_train_test_split
+from src.recommendations.popularity_based_model import popularity_based_recommendations
+from src.recommendations.als_model import als_recommendations
+from src.recommendations.similarity_based_model import similarity_based_recommendations
+from src.recommendations.rec_ranking import run_ranking_pipeline
+from src.recommendations.rec_evaluation import evaluate_model
 
 # ---------- Logging setup ---------- #
-logger = setup_logging('main')
+logger = setup_logging('main_recs')
 
 # ---------- Main pipeline---------- #
 def main():
@@ -44,7 +44,7 @@ def main():
     '''
 
     # Parse command-line arguments
-    parser = argparse.ArgumentParser(description='Music Recommendation System')
+    parser = argparse.ArgumentParser(description='Finding Recommendations Main Pipeline')
     parser.add_argument('--skip-download', action='store_true', default=False)
     args = parser.parse_args()
     

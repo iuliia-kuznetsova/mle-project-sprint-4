@@ -13,9 +13,9 @@
     - personal_als.parquet - Personal recommendations for all users
 
     Usage:
-    python3 -m src.als_model --train # train ALS model
-    python3 -m src.als_model --recommend # generate recommendations for all users
-    python3 -m src.als_model --user-id 12345 # generate recommendations for a specific user
+    python3 -m src.recommendations.als_model --train # train ALS model
+    python3 -m src.recommendations.als_model --recommend # generate recommendations for all users
+    python3 -m src.recommendations.als_model --user-id 12345 # generate recommendations for a specific user
 '''
 
 # ---------- Imports ---------- #
@@ -31,12 +31,12 @@ from scipy.sparse import load_npz
 from implicit.als import AlternatingLeastSquares
 from dotenv import load_dotenv
 
-from src.logging_set_up import setup_logging
-from src.s3_loading import upload_recommendations_to_s3
+from src.logging_setup import setup_logging
+from src.recommendations.s3_loading import upload_recommendations_to_s3
 
 # ---------- Load environment variables ---------- #
 # Load from config/.env (relative to project root)
-config_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config')
+config_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'config')
 load_dotenv(os.path.join(config_dir, '.env'))
 
 # ---------- Logging setup ---------- #

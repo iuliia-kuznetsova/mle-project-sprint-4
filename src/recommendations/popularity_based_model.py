@@ -17,13 +17,13 @@
     - popularity_track_scores.parquet - popularity scores for all tracks
 
     Usage examples:
-    python3 -m src.popularity_based_rec # generate top N popularity-based recommendations
-    python3 -m src.popularity_based_rec --user-id 1234567890 # get recommendations for a specific user ID
-    python3 -m src.popularity_based_rec --n 100 # number of top popular tracks to return (default: 100)
-    python3 -m src.popularity_based_rec--n-recs 10 # number of recommendations to return for each user (default: 10)
-    python3 -m src.popularity_based_rec--method listen_count # method to compute track popularity (listen_count, user_count, avg_listens)
-    python3 -m src.popularity_based_rec--with-metadata True # whether to add metadata to the top popular tracks (default: True)
-    python3 -m src.popularity_based_rec--filter-listened True # whether to filter out tracks the user has already listened to (default: True)
+    python3 -m src.recommendations.popularity_based_model # generate top N popularity-based recommendations
+    python3 -m src.recommendations.popularity_based_model --user-id 1234567890 # get recommendations for a specific user ID
+    python3 -m src.recommendations.popularity_based_model --n 100 # number of top popular tracks to return (default: 100)
+    python3 -m src.recommendations.popularity_based_model --n-recs 10 # number of recommendations to return for each user (default: 10)
+    python3 -m src.recommendations.popularity_based_model --method listen_count # method to compute track popularity (listen_count, user_count, avg_listens)
+    python3 -m src.recommendations.popularity_based_model --with-metadata True # whether to add metadata to the top popular tracks (default: True)
+    python3 -m src.recommendations.popularity_based_model --filter-listened True # whether to filter out tracks the user has already listened to (default: True)
 '''
 
 # ---------- Imports ---------- #
@@ -36,12 +36,12 @@ from typing import List
 import polars as pl
 from dotenv import load_dotenv
 
-from src.logging_set_up import setup_logging
-from src.s3_loading import upload_recommendations_to_s3
+from src.logging_setup import setup_logging
+from src.recommendations.s3_loading import upload_recommendations_to_s3
 
 # ---------- Load environment variables ---------- #
 # Load from config/.env (relative to project root)
-config_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config')
+config_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'config')
 load_dotenv(os.path.join(config_dir, '.env'))
 
 # ---------- Logging setup ---------- #

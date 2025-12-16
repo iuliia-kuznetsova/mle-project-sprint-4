@@ -13,9 +13,9 @@
     Results are saved to ./results as JSON
 
     Usage examples:
-    python3 -m src.rec_evaluation # evaluate all models
-    python3 -m src.rec_evaluation --model popularity # model to evaluate: popularity, als, ranked, all
-    python3 -m src.rec_evaluation --model all # evaluate all models
+    python3 -m src.recommendations.rec_evaluation # evaluate all models
+    python3 -m src.recommendations.rec_evaluation --model popularity # model to evaluate: popularity, als, ranked, all
+    python3 -m src.recommendations.rec_evaluation --model all # evaluate all models
 '''
 
 # ---------- Imports ---------- #
@@ -33,13 +33,13 @@ import polars as pl
 from scipy.sparse import load_npz
 from dotenv import load_dotenv
 
-from src.popularity_based_model import PopularityRecommender
-from src.als_model import ALSRecommender, load_als_model
-from src.rec_ranking import generate_ranked_recommendations
-from src.logging_set_up import setup_logging
+from src.recommendations.popularity_based_model import PopularityRecommender
+from src.recommendations.als_model import ALSRecommender, load_als_model
+from src.recommendations.rec_ranking import generate_ranked_recommendations
+from src.logging_setup import setup_logging
 
 # ---------- Load environment variables ---------- #
-config_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config')
+config_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'config')
 load_dotenv(os.path.join(config_dir, '.env'))
 
 # ---------- Logging setup ---------- #

@@ -11,8 +11,8 @@
     - True if upload successful, False otherwise
 
     Usage:
-    python -m src.s3_utils --upload-data-to-s3
-    python -m src.s3_utils --upload-recommendations-to-s3
+    python -m src.recommendations.s3_loading --upload-data-to-s3
+    python -m src.recommendations.s3_loading --upload-recommendations-to-s3
 '''
 
 # ---------- Imports ---------- #
@@ -24,7 +24,7 @@ from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 
 # ---------- Load environment variables ---------- #
-config_dir = os.path.join(os.path.dirname(__file__), '..', 'config')
+config_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'config')
 load_dotenv(os.path.join(config_dir, '.env'))
 
 class Config:

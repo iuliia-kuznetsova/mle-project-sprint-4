@@ -1,17 +1,16 @@
 
 '''
-    Service for adding/retrieving events history.
+    Events service
 
-    This service is used to add/retrieve online events for a given user.
+    This microservice is used to add/retrieve online events for a given user.
+
+    Usage examples:
+    python3 -m src.microservice.events # launch events service
 '''
 
 # ---------- Imports ---------- #
 from fastapi import FastAPI
 import polars as pl
-from src.logging_set_up import setup_logging
-
-# ---------- Logging setup ---------- #
-logger = setup_logging('uvicorn.error')
 
 # ---------- Events storage class ---------- #
 class EventStore:
@@ -40,7 +39,6 @@ class EventStore:
             self.events
                 .filter(pl.col('user_id') == user_id)
                 .sort('position')
-                .collect()
         )
 
         # Shift existing events for the given user
@@ -125,9 +123,7 @@ async def put(user_id: int, track_id: int):
         - dictionary with result
     '''
 
-    logger.info(f'Adding event for user {user_id} and track {track_id}')
     event_store.put(user_id, track_id)
-    logger.info(f'DONE: Added event for user {user_id} and track {track_id}')
 
     return {'result': 'OK'}
 
@@ -145,8 +141,6 @@ async def get(user_id: int, k: int):
         - dictionary with events
     '''
 
-    logger.info(f'Getting events for user {user_id} and k {k}')
     events = event_store.get(user_id, k)
-    logger.info(f'DONE: Found {len(events)} events for user {user_id}')
 
     return {'events': events}

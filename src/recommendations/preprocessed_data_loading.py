@@ -2,7 +2,7 @@
 Helper module to load preprocessed data for model training.
 
 Usage:
-    from src.load_preprocessed import load_interaction_data, load_encoders
+    from src.recommendations.preprocessed_data_loading import load_interaction_data, load_encoders
     
     # Load sparse matrix and encoders
     matrix, encoders = load_interaction_data()
@@ -22,7 +22,7 @@ from scipy.sparse import load_npz, csr_matrix
 from dotenv import load_dotenv
 
 # Load environment variables from config/.env
-config_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config')
+config_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'config')
 load_dotenv(os.path.join(config_dir, '.env'))
 
 
@@ -48,7 +48,7 @@ def load_encoders(models_dir: str = None) -> Dict[str, Dict[int, int]]:
     if not os.path.exists(encoders_path):
         raise FileNotFoundError(
             f"Label encoders not found at {encoders_path}. "
-            "Run preprocessing first: python3 -m src.main"
+            "Run preprocessing first: python3 -m src.recommendations.main"
         )
     
     with open(encoders_path, 'rb') as f:
@@ -72,7 +72,7 @@ def load_interaction_matrix(preprocessed_dir: str = 'data/preprocessed') -> csr_
     if not os.path.exists(matrix_path):
         raise FileNotFoundError(
             f"Interaction matrix not found at {matrix_path}. "
-            "Run preprocessing first: python3 -m src.main"
+            "Run preprocessing first: python3 -m src.recommendations.main"
         )
     
     matrix = load_npz(matrix_path)
@@ -110,7 +110,7 @@ def load_events(preprocessed_dir: str = 'data/preprocessed') -> pl.DataFrame:
     if not os.path.exists(events_path):
         raise FileNotFoundError(
             f"Events not found at {events_path}. "
-            "Run preprocessing first: python3 -m src.main"
+            "Run preprocessing first: python3 -m src.recommendations.main"
         )
     
     return pl.read_parquet(events_path)
@@ -131,7 +131,7 @@ def load_catalog(preprocessed_dir: str = 'data/preprocessed') -> pl.DataFrame:
     if not os.path.exists(catalog_path):
         raise FileNotFoundError(
             f"Catalog not found at {catalog_path}. "
-            "Run preprocessing first: python3 -m src.main"
+            "Run preprocessing first: python3 -m src.recommendations.main"
         )
     
     return pl.read_parquet(catalog_path)
@@ -152,7 +152,7 @@ def load_items(preprocessed_dir: str = 'data/preprocessed') -> pl.DataFrame:
     if not os.path.exists(items_path):
         raise FileNotFoundError(
             f"Items not found at {items_path}. "
-            "Run preprocessing first: python3 -m src.main"
+            "Run preprocessing first: python3 -m src.recommendations.main"
         )
     
     return pl.read_parquet(items_path)

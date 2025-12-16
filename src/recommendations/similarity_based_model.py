@@ -14,8 +14,8 @@
     - similar_tracks_index.pkl - similar tracks index for all tracks
 
     Usage:
-    python3 -m src.similarity_based_model --all-tracks # build full index for all tracks
-    python3 -m src.similarity_based_model --track-id 1234567890 # find similar tracks for a specific track
+    python3 -m src.recommendations.similarity_based_model --all-tracks # build full index for all tracks
+    python3 -m src.recommendations.similarity_based_model --track-id 1234567890 # find similar tracks for a specific track
 '''
 
 # ---------- Imports ---------- #
@@ -31,13 +31,13 @@ import numpy as np
 import polars as pl
 from dotenv import load_dotenv
 
-from src.logging_set_up import setup_logging
-from src.s3_loading import upload_recommendations_to_s3
-from src.als_model import load_als_model
+from src.logging_setup import setup_logging
+from src.recommendations.s3_loading import upload_recommendations_to_s3
+from src.recommendations.als_model import load_als_model
 
 # ---------- Load environment variables ---------- #
 # Load from config/.env (relative to project root)
-config_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config')
+config_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'config')
 load_dotenv(os.path.join(config_dir, '.env'))
 
 # ---------- Logging setup ---------- #

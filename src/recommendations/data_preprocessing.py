@@ -12,9 +12,7 @@
     - Build items table (join all metadata),
     - Build tracks catalog (unique tracks with metadata),
     - Build events dataframe (filter outliers, map IDs, aggregate),
-    - Create label encoders (user_id and track_id to sequential indices),
-    - Not implemented, but left in case needed in the project part 2: 
-    Create sparse interaction matrix (users × tracks).
+    - Create label encoders (user_id and track_id to sequential indices).
 
     Input:
     - raw_dir - Directory with raw parquet files (tracks, catalog_names, interactions),
@@ -24,16 +22,14 @@
     - items.parquet - Canonical music catalog with track_group_id for diversity,
     - tracks_catalog_clean.parquet - Track lookup table,
     - events.parquet - User-track interaction events,
-    - ./models/label_encoders.pkl - User and track ID to index mappings (for model training),
-    - Not implemented, but left in case needed in the project part 2: 
-    interaction_matrix.npz - Sparse CSR matrix of user-track interactions.
+    - ./models/label_encoders.pkl - User and track ID to index mappings (for model training).
 
     Usage:
-    python -m src.data_preprocessing --build-items-df
-    python -m src.data_preprocessing --build-tracks-catalog
-    python -m src.data_preprocessing --build-events-df
-    python -m src.data_preprocessing --create-label-encoders
-    python -m src.data_preprocessing --create-sparse-interaction-matrix
+    python -m src.recommendations.data_preprocessing --build-items-df
+    python -m src.recommendations.data_preprocessing --build-tracks-catalog
+    python -m src.recommendations.data_preprocessing --build-events-df
+    python -m src.recommendations.data_preprocessing --create-label-encoders
+    python -m src.recommendations.data_preprocessing --create-sparse-interaction-matrix
 '''
 
 # ---------- Imports ---------- #
@@ -47,12 +43,12 @@ import polars as pl
 from scipy.sparse import csr_matrix, save_npz
 from dotenv import load_dotenv
 
-from src.s3_loading import upload_data_to_s3
-from src.logging_set_up import setup_logging
+from src.recommendations.s3_loading import upload_data_to_s3
+from src.logging_setup import setup_logging
 
 # ---------- Load environment variables ---------- #
 # Load from config/.env (relative to project root)
-config_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config')
+config_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'config')
 load_dotenv(os.path.join(config_dir, '.env'))
 
 # ---------- Logging setup ---------- #
@@ -556,69 +552,6 @@ def create_label_encoders(preprocessed_dir: str):
     gc.collect()
 
     return None
-    
-#    Not implemented, but left in case needed in the project part 2
-#    # ---------- Create sparse interaction matrix ---------- #
-#    def create_sparse_interaction_matrix(preprocessed_dir: str):
-#    '''
-#        Create sparse interaction matrix.
-#
-#        Args:
-#        - preprocessed_dir - directory to load preprocessed data from
-#
-#        Returns:
-#        - None
-#    '''
-#    logger.info('Creating sparse interaction matrix')
-#    
-#    # Load events
-#    logger.info('Loading events from %s', preprocessed_dir)
-#    events = pl.read_parquet(f'{preprocessed_dir}/events.parquet')
-#    encoders = load_encoders(preprocessed_dir)
-#    
-#    user_encoder = encoders['user_encoder']
-#    track_encoder = encoders['track_encoder']
-#    
-#    n_users = len(user_encoder)
-#    n_tracks = len(track_encoder)
-#    
-#    # Build sparse interaction matrix (users * tracks)
-#    # Use listen_count as the interaction strength
-#    events_encoded = (
-#        events
-#            .with_columns([
-#                pl.col('user_id').replace(user_encoder).alias('user_idx'),
-#                pl.col('track_id').replace(track_encoder).alias('track_idx'),
-#            ])
-#    #        .drop_nulls(['user_idx', 'track_idx'])
-#    )
-#    
-#    row_indices = events_encoded['user_idx'].to_numpy()
-#    col_indices = events_encoded['track_idx'].to_numpy()
-#    data = events_encoded['listen_count'].to_numpy().astype(np.float32)
-#    
-#    n_users = len(user_encoder)
-#    n_tracks = len(track_encoder)
-#    
-#    events_matrix = csr_matrix(
-#        (data, (row_indices, col_indices)),
-#        shape=(n_users, n_tracks),
-#        dtype=np.float32
-#    )
-#    
-#    logger.info(f'Created sparse matrix: {events_matrix.shape} with {events_matrix.nnz:,} non-zero entries')
-#    logger.info(f'Sparsity: {100 * (1 - events_matrix.nnz / (n_users * n_tracks)):.4f}%')
-#    
-#    # Save sparse matrix
-#    sparse_matrix_path = f'{preprocessed_dir}/events_matrix.npz'
-#    save_npz(sparse_matrix_path, events_matrix)
-#    logger.info(f'Saved events sparse matrix to {sparse_matrix_path}')
-#    
-#    # Free up memory
-#    del (events_encoded, events_matrix, sparse_matrix_path)
-#    gc.collect()
-#
-#    return None
 
 # ---------- Data preprocessing pipeline ---------- #
 def run_preprocessing(raw_dir: str=None, preprocessed_dir: str=None):

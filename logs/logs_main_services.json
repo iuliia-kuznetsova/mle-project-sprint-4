@@ -1,0 +1,6 @@
+{"timestamp": "2025-12-16 21:49:51,930", "module": "main_services", "level": "INFO", "message": "Logging to logs_main_services.json setup completed"}
+{"timestamp": "2025-12-16 21:49:51,935", "module": "main_services", "level": "INFO", "message": "Starting all services"}
+{"timestamp": "2025-12-16 21:49:51,936", "module": "main_services", "level": "INFO", "message": "Started offline_recs service"}
+{"timestamp": "2025-12-16 21:49:51,938", "module": "main_services", "level": "INFO", "message": "Started events service"}
+{"timestamp": "2025-12-16 21:49:51,940", "module": "main_services", "level": "INFO", "message": "Started online_recs service"}
+{"timestamp": "2025-12-16 21:49:51,941", "module": "main_services", "level": "INFO", "message": "Started final_recs service"}

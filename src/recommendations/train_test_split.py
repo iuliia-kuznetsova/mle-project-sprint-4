@@ -21,8 +21,8 @@
     - split_info.pkl - Split information
 
     Usage:
-    python -m src.train_test_split --calculate-date-threshold
-    python -m src.train_test_split --run-train-test-split
+    python -m src.recommendations.train_test_split --calculate-date-threshold
+    python -m src.recommendations.train_test_split --run-train-test-split
 '''
 
 # ---------- Imports ---------- #
@@ -39,11 +39,11 @@ import numpy as np
 from scipy.sparse import csr_matrix, save_npz
 from dotenv import load_dotenv
 
-from src.logging_set_up import setup_logging
+from src.logging_setup import setup_logging
 
 # ---------- Load environment variables ---------- #
 # Load from config/.env (relative to project root)
-config_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config')
+config_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'config')
 load_dotenv(os.path.join(config_dir, '.env'))
 
 # ---------- Logging setup ---------- #
